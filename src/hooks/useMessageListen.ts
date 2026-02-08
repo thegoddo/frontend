@@ -65,7 +65,7 @@ export function useMessageListen(
 
         return () => {
             socket.off("conversation:new-message", handleNewMessage);
-            socket.of("conversation:send-message:error", handleSendMessageError);
+            socket.off("conversation:send-message:error", handleSendMessageError);
         }
     }, [conversationId, friendId, user, socket, queryClient])
 }
