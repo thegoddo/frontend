@@ -3,6 +3,7 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import { authService } from "../../../services/authService"
 import { toast } from "sonner"
 import { Loader2, Lock, Mail, User } from "lucide-react"
@@ -42,7 +43,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitch }) => {
             toast.success("Account created! You can now sign in!")
         },
         onError: (error) => {
-            const msg = error.response?.data?.message || "Registration failed"
+            const msg = (error as AxiosError<{ message: string }>).response?.data?.message || "Registration failed"
             toast.error(msg)
         },
     })

@@ -7,6 +7,7 @@ import { useMutation } from "@tanstack/react-query"
 import { authService } from "../../../services/authService"
 import { toast } from "sonner"
 import { Loader2, Lock, Mail } from "lucide-react"
+import axios from "axios"
 
 interface LoginFormProps {
     onSwitch: () => void
@@ -36,8 +37,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
             return navigate('/');
         },
         onError: (error) => {
-            const msg = error.response?.data?.message || "Login failed"
-            toast.error(msg);
+            const msg = axios.isAxiosError(error) ? error.response?.data?.message : "Login failed"
+            toast.error(msg || "Login failed");
         }
     })
 
