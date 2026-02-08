@@ -3,10 +3,10 @@ import { useAuthStore } from "../../stores/authStore";
 
 
 const MessageItem: React.FC<Message> = ({
-    _id,
+    // _id,
     sender,
     content,
-    read,
+    // read,
     createdAt
 }) => {
     const { user } = useAuthStore();

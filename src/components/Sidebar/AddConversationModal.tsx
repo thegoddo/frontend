@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner"
 import {Loader2, Wifi} from "lucide-react"
+import axios from "axios";
 
 import { conversationService } from "../../services/conversationService";
 import { useSocketContext } from "../../contexts/SocketContext";
@@ -54,7 +55,10 @@ const AddConversationModal: React.FC<AddConversationModalProps> = ({
             })
             onClose();
         } else {
-            toast.error(result.error?.response?.data.message ?? "Invalid connect ID");
+            const errorMessage = axios.isAxiosError(result.error) 
+                ? result.error.response?.data.message 
+                : "Invalid connect ID";
+            toast.error(errorMessage ?? "Invalid connect ID");
         }
     }
 

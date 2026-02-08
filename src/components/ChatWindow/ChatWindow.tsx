@@ -8,7 +8,9 @@ const ChatWindow: React.FC = () => {
     const {selectedConversation} = useConversationStore();
 
     return <div className="min-h-screen max-h-screen w-full bg-white flex flex-col justify-between">
-        {selectedConversation && <ChatHeader />}
+        {selectedConversation && <ChatHeader isOpen={false} onClose={function (): void {
+            throw new Error("Function not implemented.");
+        } } children={undefined} />}
         {selectedConversation && <MessageList />}
         {!selectedConversation && <ChatPlaceholder />}
         {selectedConversation && <MessageInput />}
