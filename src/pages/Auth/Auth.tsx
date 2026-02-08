@@ -16,7 +16,7 @@ const Auth: React.FC = () => {
                             <Mail className="size-10" />
                         </div>
                     </div>
-                    <h1 className="text-3xl font-bold mb-2">Welcome to Chatty</h1>
+                    <h1 className="text-3xl font-bold mb-2">Welcome to BaatCheet</h1>
                     <p>Connect with friends and family, anytime and anywhere</p>
                 </div>
                 <div className="mt-10 text-center">
