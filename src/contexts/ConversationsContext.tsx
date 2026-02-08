@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import type { User } from "../stores/authStore"
-import { useConversations } from "../hooks/useConversations";
+import { useConversations } from "../hooks/useConversations"
 import { useSocketContext } from "./SocketContext"
 import { toast } from "sonner";
 
