@@ -1,4 +1,4 @@
-import ChatWindow from "../../components/ChatWindow/Chatwindow";
+import ChatWindow from "../../components/ChatWindow/ChatWindow";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { SocketProvider } from "../../contexts/SocketContext";
 import { useConversationStore } from "../../stores/conversationStore";
