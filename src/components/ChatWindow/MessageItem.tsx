@@ -3,6 +3,13 @@ import type { Message } from "../../services/messageService";
 import { useAuthStore } from "../../stores/authStore";
 import LocationMap from "../ui/LocationMap";
 import { toast } from "sonner";
+import LinkPreview from "../ui/LinkPreview";
+
+const extractUrl = (text: string) => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const match = text.match(urlRegex);
+  return match ? match[0] : null; // Returns the first URL found
+};
 
 const MessageItem: React.FC<Message> = ({ sender, content, createdAt }) => {
   const { user } = useAuthStore();
@@ -28,6 +35,7 @@ const MessageItem: React.FC<Message> = ({ sender, content, createdAt }) => {
   // --- CONTENT TYPE CHECKS ---
   const isLocation = content.startsWith("geo:");
   const isImage = content.startsWith("img:");
+  const firstUrl = !isImage && !isLocation ? extractUrl(content) : null;
 
   // --- DOWNLOAD HANDLER ---
   const handleDownload = async (url: string) => {
@@ -95,7 +103,12 @@ const MessageItem: React.FC<Message> = ({ sender, content, createdAt }) => {
     }
 
     // 3. RENDER TEXT
-    return <p className="text-sm">{content}</p>;
+    return (
+      <div className="flex flex-col">
+        <p className="text-sm">{content}</p>
+        {firstUrl && <LinkPreview url={firstUrl} />}
+      </div>
+    );
   };
 
   if (userIsSender) {
