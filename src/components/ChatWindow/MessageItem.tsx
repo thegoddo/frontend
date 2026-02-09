@@ -1,5 +1,6 @@
 import type { Message } from "../../services/messageService";
 import { useAuthStore } from "../../stores/authStore";
+import LocationMap from "../ui/LocationMap";
 
 const MessageItem: React.FC<Message> = ({
   // _id,
@@ -29,12 +30,32 @@ const MessageItem: React.FC<Message> = ({
   });
 
   const displayTime = diffInDays > 1 ? `${date} ${time}` : time;
+  
+
+  const isLocation = content.startsWith("geo:");
+  let lat = 0;
+  let lng = 0;
+
+  if (isLocation) {
+    const coords = content.replace("geo:", "").split(",");
+    lat = parseFloat(coords[0]);
+    lng = parseFloat(coords[1]);
+  }
+  
+  // Helper to render content (Map OR Text)
+  const renderContent = () => {
+    if (isLocation && !isNaN(lat) && !isNaN(lng)) {
+      return <LocationMap latitude={lat} longitude={lng} />;
+    }
+    return <p className="text-sm"> {content}</p>
+  }
 
   if (userIsSender) {
     return (
       <div className="flex justify-end mb-4">
         <div className="bg-sky-500 text-white p-3 max-w-xs lg:max-w-md rounded-2xl">
-          <p className="text-sm">{content}</p>
+          {/* <p className="text-sm">{content}</p> */}
+          {renderContent()}
           <span className="text-xs flex items-center gap-1 text-blue-100 mt-1">
             {displayTime}
           </span>
