@@ -6,13 +6,13 @@ import {
   Image as ImageIcon,
   MapPin,
 } from "lucide-react";
-import DOMPurify from "dompurify";
 import { useAuthStore } from "../../stores/authStore";
 import { useConversationStore } from "../../stores/conversationStore";
 import { useSocketContext } from "../../contexts/SocketContext";
 import { useRef, useState, useEffect } from "react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
+import { useFileUpload } from "../../hooks/useFileUpload";
 
 const MessageInput: React.FC = () => {
   const { user } = useAuthStore();
@@ -29,6 +29,9 @@ const MessageInput: React.FC = () => {
 
   const typingTimeoutRef = useRef<number | null>(null);
   const isTypingRef = useRef(false);
+
+  const { uploadFile, isUploading } = useFileUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -173,6 +176,29 @@ const MessageInput: React.FC = () => {
     );
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // the hook handle validation and uploading
+    const imageUrl = await uploadFile(file);
+
+    if (imageUrl) {
+      // upload succeedded, send socket message
+      const imageContent = `img:${imageUrl}`;
+
+      socket?.emit("conversation:send-message", {
+        conversationId: selectedConversation?.conversationId,
+        userId: user?.id,
+        friendId: selectedConversation?.friend.id,
+        content: imageContent,
+      });
+
+      setShowAttachments(false);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   if (!selectedConversation) return null;
 
   return (
@@ -203,7 +229,7 @@ const MessageInput: React.FC = () => {
           <button
             type="button"
             className="flex items-center gap-3 p-2.5 hover:bg-gray-50 rounded-lg text-gray-700 transition-colors w-full text-left"
-            onClick={handleImage}
+            onClick={() => fileInputRef.current?.click()} // <-- This trigger the hidden input field
           >
             <div className="bg-sky-100 p-2 rounded-full">
               <ImageIcon className="size-4 text-sky-600" />
@@ -268,6 +294,13 @@ const MessageInput: React.FC = () => {
             type="button"
             className="bg-sky-500 text-white rounded-full size-10 flex items-center justify-center hover:bg-sky-600 cursor-pointer"
           >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden" // keeps it invisible
+              accept="image/png, image/jpeg, image/jpg"
+            />
             <Send className="size-4" />
           </button>
         </div>
