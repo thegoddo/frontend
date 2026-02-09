@@ -33,7 +33,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ latitude, longitude }) => {
         center: [latitude, longitude],
         zoom: 13,
         zoomControl: false, // Hide zoom buttons for a cleaner preview
-        dragging: false, // Disable panning (optional, keeps it static)
+        dragging: true, // Disable panning (optional, keeps it static)
         scrollWheelZoom: false, // Disable scroll zoom
         doubleClickZoom: false,
         attributionControl: false, // Hide footer text for small size
@@ -65,7 +65,7 @@ const LocationMap: React.FC<LocationMapProps> = ({ latitude, longitude }) => {
   return (
     <div
       className="rounded-lg overflow-hidden border border-gray-300 mt-2 relative z-0"
-      style={{ height: "150px", width: "100%", minWidth: "200px" }}
+      style={{ height: "250px", width: "100%", minWidth: "300px" }}
     >
       <div ref={mapContainer} className="w-full h-full" />
     </div>
