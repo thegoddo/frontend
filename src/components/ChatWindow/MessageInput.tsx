@@ -30,6 +30,7 @@ const MessageInput: React.FC = () => {
   const typingTimeoutRef = useRef<number | null>(null);
   const isTypingRef = useRef(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { uploadFile, isUploading } = useFileUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -117,10 +118,6 @@ const MessageInput: React.FC = () => {
 
   const handleDocument = () => {
     console.log("Document upload clicked");
-  };
-
-  const handleImage = () => {
-    console.log("Image upload clicked");
   };
 
   const sendLocationMessage = (latitude: number, longitude: number) => {
