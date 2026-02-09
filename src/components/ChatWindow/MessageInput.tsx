@@ -127,14 +127,16 @@ const MessageInput: React.FC = () => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        // const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        // 
+        const locationString = `geo:${latitude}:${longitude}`;
 
         if (socket && user && selectedConversation) {
           socket.emit("conversation:send-message", {
             conversationId: selectedConversation.conversationId,
             userId: user.id,
             friendId: selectedConversation.friend.id,
-            content: locationLink,
+            content: locationString,
           });
           setShowAttachments(false);
         }
