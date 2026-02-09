@@ -6,6 +6,7 @@ import {
   Image as ImageIcon,
   MapPin,
 } from "lucide-react";
+import DOMPurify from "dompurify";
 import { useAuthStore } from "../../stores/authStore";
 import { useConversationStore } from "../../stores/conversationStore";
 import { useSocketContext } from "../../contexts/SocketContext";
@@ -118,28 +119,27 @@ const MessageInput: React.FC = () => {
   const handleImage = () => {
     console.log("Image upload clicked");
   };
-  
+
   const sendLocationMessage = (latitude: number, longitude: number) => {
-      const locationString = `geo:${latitude},${longitude}`;
+    const locationString = `geo:${latitude},${longitude}`;
 
-        if (socket && user && selectedConversation) {
-          socket.emit("conversation:send-message", {
-            conversationId: selectedConversation.conversationId,
-            userId: user.id,
-            friendId: selectedConversation.friend.id,
-            content: locationString,
-          });
-          setShowAttachments(false);
-        }
+    if (socket && user && selectedConversation) {
+      socket.emit("conversation:send-message", {
+        conversationId: selectedConversation.conversationId,
+        userId: user.id,
+        friendId: selectedConversation.friend.id,
+        content: locationString,
+      });
+      setShowAttachments(false);
+    }
+  };
 
-  }
-  
   const fallbackToIpLocation = async () => {
     try {
       console.log("Attempting to fetch location via IP...");
       const response = await fetch("https://ipapi.co/json/");
       const data = await response.json();
-      
+
       if (data.latitude && data.longitude) {
         sendLocationMessage(data.latitude, data.longitude);
       } else {
@@ -148,7 +148,7 @@ const MessageInput: React.FC = () => {
     } catch (error) {
       console.error("Error fetching IP location:", error);
     }
-  }
+  };
 
   const handleLocation = () => {
     if (!navigator.geolocation) {
@@ -158,16 +158,15 @@ const MessageInput: React.FC = () => {
     }
 
     navigator.geolocation.getCurrentPosition(
-      
       (position) => {
         const { latitude, longitude } = position.coords;
         // const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        // 
+        //
         sendLocationMessage(latitude, longitude);
       },
       (error) => {
         console.error("Error getting location", error);
-      toast.error("Error getting location");
+        toast.error("Error getting location");
         fallbackToIpLocation();
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
