@@ -11,6 +11,7 @@ import { useConversationStore } from "../../stores/conversationStore";
 import { useSocketContext } from "../../contexts/SocketContext";
 import { useRef, useState, useEffect } from "react";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
+import { toast } from "sonner";
 
 const MessageInput: React.FC = () => {
   const { user } = useAuthStore();
@@ -117,19 +118,9 @@ const MessageInput: React.FC = () => {
   const handleImage = () => {
     console.log("Image upload clicked");
   };
-
-  const handleLocation = () => {
-    if (!navigator.geolocation) {
-      console.log("Geolocation is not supported by this browser");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        // const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        // 
-        const locationString = `geo:${latitude},${longitude}`;
+  
+  const sendLocationMessage = (latitude: number, longitude: number) => {
+      const locationString = `geo:${latitude},${longitude}`;
 
         if (socket && user && selectedConversation) {
           socket.emit("conversation:send-message", {
@@ -140,9 +131,44 @@ const MessageInput: React.FC = () => {
           });
           setShowAttachments(false);
         }
+
+  }
+  
+  const fallbackToIpLocation = async () => {
+    try {
+      console.log("Attempting to fetch location via IP...");
+      const response = await fetch("https://ipapi.co/json/");
+      const data = await response.json();
+      
+      if (data.latitude && data.longitude) {
+        sendLocationMessage(data.latitude, data.longitude);
+      } else {
+        console.error("IP Location failed: Invalid data received");
+      }
+    } catch (error) {
+      console.error("Error fetching IP location:", error);
+    }
+  }
+
+  const handleLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Error getting location");
+      fallbackToIpLocation();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        // const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+        // 
+        sendLocationMessage(latitude, longitude);
       },
       (error) => {
         console.error("Error getting location", error);
+      toast.error("Error getting location");
+        fallbackToIpLocation();
       },
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
     );

@@ -30,7 +30,6 @@ const MessageItem: React.FC<Message> = ({
   });
 
   const displayTime = diffInDays > 1 ? `${date} ${time}` : time;
-  
 
   const isLocation = content.startsWith("geo:");
   let lat = 0;
@@ -41,14 +40,14 @@ const MessageItem: React.FC<Message> = ({
     lat = parseFloat(coords[0]);
     lng = parseFloat(coords[1]);
   }
-  
+
   // Helper to render content (Map OR Text)
   const renderContent = () => {
     if (isLocation && !isNaN(lat) && !isNaN(lng)) {
       return <LocationMap latitude={lat} longitude={lng} />;
     }
-    return <p className="text-sm"> {content}</p>
-  }
+    return <p className="text-sm"> {content}</p>;
+  };
 
   if (userIsSender) {
     return (
@@ -72,7 +71,7 @@ const MessageItem: React.FC<Message> = ({
         className="size-8 rounded-full object-cover mr-2"
       />
       <div className="bg-white p-3 max-w-xs lg:max-w-md rounded-2xl">
-        <p className="text-sm">{content}</p>
+        {renderContent()}
         <span className="text-xs text-gray-500 flex items-center gap-1 mt-1">
           {displayTime}
         </span>
