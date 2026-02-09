@@ -129,7 +129,7 @@ const MessageInput: React.FC = () => {
         const { latitude, longitude } = position.coords;
         // const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
         // 
-        const locationString = `geo:${latitude}:${longitude}`;
+        const locationString = `geo:${latitude},${longitude}`;
 
         if (socket && user && selectedConversation) {
           socket.emit("conversation:send-message", {
