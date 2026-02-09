@@ -195,6 +195,13 @@ const MessageInput: React.FC = () => {
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Check if Enter was pressed WITHOUT Shift
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Prevent the default behavior (new line)
+      handleSendMessage();
+    }
+  };
 
   if (!selectedConversation) return null;
 
@@ -280,6 +287,7 @@ const MessageInput: React.FC = () => {
             className="w-full text-sm bg-gray-100 rounded-full py-3 px-4 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
             value={message}
             onChange={(e) => handleOnChange(e)}
+            onKeyDown={handleKeyDown}
             rows={1}
           />
         </div>
