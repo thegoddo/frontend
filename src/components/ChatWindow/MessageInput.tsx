@@ -30,8 +30,7 @@ const MessageInput: React.FC = () => {
   const typingTimeoutRef = useRef<number | null>(null);
   const isTypingRef = useRef(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { uploadFile, isUploading } = useFileUpload();
+  const { uploadFile } = useFileUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -300,6 +299,7 @@ const MessageInput: React.FC = () => {
             className="bg-sky-500 text-white rounded-full size-10 flex items-center justify-center hover:bg-sky-600 cursor-pointer"
           >
             <input
+              title="image picker"
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
