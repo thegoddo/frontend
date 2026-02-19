@@ -1,73 +1,86 @@
-# React + TypeScript + Vite
+# 💬 BaatCheet - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The frontend client for **BaatCheet**, a modern, real-time chat application. Built with a focus on speed, responsiveness, and a seamless user experience.
 
-Currently, two official plugins are available:
+![BaatCheet UI](./public/preview.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **⚡ Real-Time Messaging:** Instant message delivery using WebSockets (`socket.io-client`).
+- **🟢 Live Status & Activity:** Real-time online/offline indicators and "typing..." animations.
+- **🤝 Connect Codes:** Unique user IDs to securely search and add friends.
+- **📎 Rich Media Sharing:**
+  - **Images:** Secure image uploads with in-chat previews and download capabilities.
+  - **Location:** Real-time location sharing rendered on interactive maps using Leaflet.
+  - **Link Previews:** Automatic rich previews (Open Graph) for shared URLs.
+- **🧠 Smart State Management:** Powered by **Zustand** for global UI state and **TanStack Query** (React Query) for efficient API data caching and infinite scrolling.
+- **🔐 Robust Authentication UI:** Login and Registration forms with OTP verification, validated strictly using **React Hook Form** and **Zod**.
+- **🎨 Modern UI/UX:** A clean, responsive, two-pane layout styled with **Tailwind CSS**, featuring crisp icons from **Lucide React** and smooth toast notifications via **Sonner**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🛠️ Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Core:** React 18, TypeScript, Vite
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand, TanStack Query (React Query)
+- **Real-Time:** Socket.io-client
+- **Forms & Validation:** React Hook Form, Zod
+- **Maps:** Leaflet, React-Leaflet
+- **UI Assets:** Lucide React (Icons), Emoji-picker-react
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 📂 Key Directory Structure
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src/
+├── components/
+│   ├── ChatWindow/      # Message list, input area, media attachments
+│   ├── Sidebar/         # Conversations list, search, add friend modal, profile
+│   └── ui/              # Reusable components (Modals, LinkPreviews, LocationMaps)
+├── contexts/            # SocketContext, ConversationsContext
+├── hooks/               # Custom hooks (useMessages, useTypingListen, useFileUpload)
+├── services/            # API client calls (authService, messageService)
+├── stores/              # Zustand stores (authStore, conversationStore)
+└── utils/               # Axios interceptors and helper functions
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 1. Prerequisites
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Ensure you have Node.js installed (v18+ recommended). Note: You will need the BaatCheet Backend running locally or deployed for the app to function.
+
+### 2. Installation
+
+Clone the repository and install dependencies:
+
+```bash
+npm install
+```
+
+### 3. Environment Variables
+
+Create a .env file in the root of the frontend directory and add your backend URLs (adjust the ports if your backend uses different ones):
+
+```env
+VITE_API_URL=http://localhost:4000/api
+```
+
+### 4. Run the Development Server
+
+Start the Vite development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at <http://localhost:5173>.
+
+## 📝 Scripts
+
+```bash
+- `npm run dev` - Starts the development server.
+- `npm run build` - Builds the app for production.
 ```
