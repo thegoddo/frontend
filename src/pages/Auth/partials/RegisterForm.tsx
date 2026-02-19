@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { useState, useRef, useEffect } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { authService } from "../../../services/authService";
 import { toast } from "sonner";
-import { Loader2, Lock, Mail, User } from "lucide-react";
+import { Loader2, Lock, Mail, User, CheckCircle } from "lucide-react";
 
 interface RegisterFormProps {
   onSwitch: () => void;
@@ -29,13 +30,10 @@ const registerSchema = z
       .string()
       .min(8, { message: "Password must be at least 8 characters long" })
       .max(15, { message: "Password too lengthy. Must be below 15 letters." })
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/,
-        {
-          message:
-            "Password must contain one number, one small and capital letter, one symbol.",
-        },
-      ),
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).+$/, {
+        message:
+          "Password must contain one number, one lowercase and one uppercase letter, and one special character.",
+      }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -49,10 +47,93 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitch }) => {
   const {
     register,
     handleSubmit,
+    watch,
+    trigger,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
   });
+
+  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const emailValue = watch("email");
+
+  // Reset OTP verification if email changes
+  useEffect(() => {
+    if (isOtpVerified) {
+      setIsOtpVerified(false);
+      setOtp(new Array(6).fill(""));
+    }
+  }, [emailValue]);
+
+  const sendOtpMutation = useMutation({
+    mutationFn: authService.sendOtp,
+    onSuccess: () => {
+      toast.success("OTP sent to your email!");
+    },
+    onError: (error) => {
+      const msg =
+        (error as AxiosError<{ message: string }>).response?.data?.message ||
+        "Failed to send OTP";
+      toast.error(msg);
+    },
+  });
+
+  const verifyOtpMutation = useMutation({
+    mutationFn: async (otpCode: string) => {
+      await authService.verifyOtp({ email: emailValue, otp: otpCode });
+    },
+    onSuccess: () => {
+      setIsOtpVerified(true);
+      toast.success("OTP Verified Successfully!");
+    },
+    onError: () => {
+      toast.error("Invalid OTP. Please try again.");
+      setOtp(new Array(6).fill(""));
+      if (otpRefs.current[0]) otpRefs.current[0].focus();
+    },
+  });
+
+  const handleSendOtp = async () => {
+    const isEmailValid = await trigger("email");
+    if (!isEmailValid) {
+      toast.error("Please enter a valid email address first.");
+      return;
+    }
+    sendOtpMutation.mutate(emailValue);
+  };
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (isNaN(Number(value))) return;
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+
+    const code = newOtp.join("");
+    if (code.length === 6 && newOtp.every((char) => char !== "")) {
+      verifyOtpMutation.mutate(code);
+    }
+  };
+
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (
+      e.key === "Backspace" &&
+      !otp[index] &&
+      index > 0 &&
+      otpRefs.current[index - 1]
+    ) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: authService.register,
@@ -178,9 +259,55 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitch }) => {
           )}
         </div>
 
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-2">
+            <label className="block text-gray-700 text-sm flex items-center">
+              One-Time Password (OTP)
+              {isOtpVerified && (
+                <CheckCircle className="w-4 h-4 text-green-500 ml-2" />
+              )}
+            </label>
+            {!isOtpVerified && (
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                className="text-xs text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={sendOtpMutation.isPending || !emailValue}
+              >
+                {sendOtpMutation.isPending ? "Sending..." : "Get OTP"}
+              </button>
+            )}
+          </div>
+          <div className="flex justify-between gap-2">
+            {otp.map((digit, index) => (
+              <input
+                title="OTP Box"
+                key={index}
+                ref={(el) => {
+                  otpRefs.current[index] = el;
+                }}
+                type="text"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleOtpChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                disabled={isOtpVerified || verifyOtpMutation.isPending}
+                className={`w-10 h-10 text-center border rounded-lg focus:outline-none focus:ring-2 text-lg font-semibold ${
+                  isOtpVerified
+                    ? "border-green-500 text-green-600 bg-green-50"
+                    : "border-gray-300 focus:ring-primary"
+                }`}
+              />
+            ))}
+          </div>
+          {verifyOtpMutation.isPending && (
+            <p className="text-xs text-gray-500 mt-1">Verifying OTP...</p>
+          )}
+        </div>
+
         <button
           type="submit"
-          disabled={mutation.isPending}
+          disabled={mutation.isPending || !isOtpVerified}
           className="mt-4 w-full bg-sky-500 hover:bg-sky-600 disabled:opacity-70 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex justify-center items-center"
         >
           {mutation.isPending ? (
