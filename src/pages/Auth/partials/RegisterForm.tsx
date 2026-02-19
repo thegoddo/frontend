@@ -149,7 +149,13 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitch }) => {
     },
   });
 
-  const onSubmit = (data: RegisterFormData) => mutation.mutate(data);
+  const onSubmit = (data: RegisterFormData) => {
+    if (!isOtpVerified) {
+      toast.error("Please verify your email first!");
+      return;
+    }
+    mutation.mutate(data);
+  };
 
   return (
     <>
